@@ -15,13 +15,15 @@ class MicropostsInterfaceTest < ActionDispatch::IntegrationTest
       post microposts_path, params: { micropost: { content: "" } }
     end
     assert_select 'div#error_explanation'
+    assert_select 'input[type=file]'
     assert_select 'a[href=?]', '/?page=2'  # 正しいページネーションリンク
     # 有効な送信
     content = "This micropost really ties the room together"
+    image = fixture_file_upload('test/fixtures/test.jpg', 'image/jpeg')
     assert_difference 'Micropost.count', 1 do
-      post microposts_path, params: { micropost: { content: content } }
+      post microposts_path, params: { micropost: { content: content, image: image } }
     end
-    assert_redirected_to root_url
+    assert assigns(:micropost).image.attached?
     follow_redirect!
     assert_match content, response.body
     # 投稿を削除する
