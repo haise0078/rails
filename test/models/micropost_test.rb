@@ -28,4 +28,11 @@ class MicropostTest < ActiveSupport::TestCase
   test "order should be most recent first" do
     assert_equal microposts(:most_recent), Micropost.first
   end
+
+  test "should set reply before micropost saved" do
+    @micropost.content = "@Sterling Archer\n hello"
+    @micropost.save
+    assert_not @micropost.in_reply_to.nil?
+    assert_equal User.find_by(id: @micropost.in_reply_to).name, 'Sterling Archer'  
+  end
 end
